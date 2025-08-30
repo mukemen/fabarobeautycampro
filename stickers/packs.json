@@ -1,0 +1,36 @@
+[
+  {
+    "id": "vector-cute",
+    "name": "Cute (Vector)",
+    "type": "vector",
+    "stickers": [
+      { "key": "glasses", "name": "Sunglasses", "on": false },
+      { "key": "bunny", "name": "Bunny Ears", "on": false },
+      { "key": "crown", "name": "Crown", "on": false },
+      { "key": "flowers", "name": "Flowers", "on": false },
+      { "key": "sparkles", "name": "Sparkles", "on": false },
+      { "key": "heartcheek", "name": "Heart Cheeks", "on": false },
+      { "key": "catears", "name": "Cat Ears", "on": false },
+      { "key": "mustache", "name": "Mustache", "on": false }
+    ]
+  },
+  {
+    "id": "images-demo",
+    "name": "Images Demo",
+    "type": "images",
+    "stickers": [
+      {
+        "key": "pink-heart",
+        "name": "Pink Heart",
+        "url": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='180'><path d='M100 170 C-20 90, 30 10, 100 60 C170 10, 220 90, 100 170 Z' fill='%23fb7185'/></svg>",
+        "anchor": "cheekR"
+      },
+      {
+        "key": "gold-star",
+        "name": "Gold Star",
+        "url": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><polygon points='90,10 110,65 170,65 120,100 140,160 90,125 40,160 60,100 10,65 70,65' fill='%23facc15'/></svg>",
+        "anchor": "forehead"
+      }
+    ]
+  }
+]
