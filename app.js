@@ -4,6 +4,7 @@ const canvas = document.getElementById('output');
 const ctx = canvas.getContext('2d');
 const countdownEl = document.getElementById('countdown');
 
+// Controls
 const effectButtons = Array.from(document.querySelectorAll('[data-effect]'));
 const beautyLevelEl = document.getElementById('beautyLevel');
 const bgBlurLevelEl = document.getElementById('bgBlurLevel');
@@ -26,7 +27,9 @@ const downloadLink = document.getElementById('download');
 const wmToggle = document.getElementById('wmToggle');
 const wmText = document.getElementById('wmText');
 const installBtn = document.getElementById('install');
+const startCamBtn = document.getElementById('startCam');
 
+// State
 let currentEffect = 'none';
 let mirror = true;
 let useFrontCamera = true;
@@ -52,15 +55,7 @@ async function checkPermission(){
   return 'unknown';
 }
 
-// Start camera only after user gesture if needed
-const startCamBtn = document.getElementById('startCam');
-if (startCamBtn){
-  startCamBtn.addEventListener('click', async()=>{
-    await startCamera(true);
-  });
-}
-
-
+// Persist / restore settings
 const SETTINGS_KEY = 'cfpro_settings_v1';
 function saveSettings() {
   const s = {
@@ -104,6 +99,7 @@ function restoreSettings() {
   } catch(e){}
 }
 
+// Effect selection
 function setEffect(name) {
   currentEffect = name;
   effectButtons.forEach(b => b.classList.toggle('active', b.dataset.effect === name));
@@ -123,7 +119,7 @@ mirrorBtn.addEventListener('click', () => {
 
 flipBtn.addEventListener('click', async () => {
   useFrontCamera = !useFrontCamera;
-  await startCamera();
+  await startCamera(true);
 });
 
 captureBtn.addEventListener('click', async () => {
@@ -154,9 +150,7 @@ async function doCountdown() {
   countdownEl.classList.add('hidden');
 }
 
-const FACE_OVAL = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109,10];
-let faceMesh = null;
-
+// ---- CAMERA ----
 async function startCamera(force = false) {
   if (currentStream) currentStream.getTracks().forEach(t => t.stop());
   const res = resolutionEl.value.split('x').map(n=>parseInt(n,10));
@@ -192,6 +186,8 @@ function resizeCanvasToRatio() {
   document.querySelector('.stage').style.aspectRatio = `${rw} / ${rh}`;
 }
 
+// ---- MEDIAPIPE ----
+let faceMesh = null;
 async function initFaceMesh() {
   faceMesh = new FaceMesh({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}` });
   faceMesh.setOptions({
@@ -203,11 +199,15 @@ async function initFaceMesh() {
   });
   faceMesh.onResults((results) => { lastResults = results; });
 
-  const camera = new Camera(videoEl, {
-    onFrame: async () => { await faceMesh.send({ image: videoEl }); renderFrame(); },
-    width: 1280, height: 720
-  });
-  camera.start();
+  // render loop tanpa Camera utils (biar tidak minta permission kedua)
+  const loop = async () => {
+    try {
+      if (videoEl.readyState >= 2) { await faceMesh.send({ image: videoEl }); }
+    } catch (e) {}
+    renderFrame();
+    requestAnimationFrame(loop);
+  };
+  loop();
 }
 
 function px(pt) { return [pt.x * canvas.width, pt.y * canvas.height]; }
@@ -250,6 +250,8 @@ function renderFrame() {
   if (gridEl.checked) drawGrid();
   if (wmToggle.checked) drawWatermark(wmText.value);
 }
+
+const FACE_OVAL = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109,10];
 
 function applyBeautify(lm) {
   const level = Number(beautyLevelEl.value)/100;
@@ -349,6 +351,7 @@ function drawWatermark(text) {
   ctx.restore();
 }
 
+// Stickers & AR
 function roundRectPath(x,y,w,h,r){const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();}
 function drawSunglasses(center, eyeW){
   const w=eyeW*1.5, h=eyeW*0.45; const x=center[0]-w/2, y=center[1]-h/2; const bridgeW=w*0.12, lensW=(w-bridgeW)/2;
@@ -422,12 +425,14 @@ window.addEventListener('beforeinstallprompt', (e) => {
   pendingInstallEvent = e;
   installBtn.disabled = false;
 });
-installBtn.addEventListener('click', async () => {
-  if (!pendingInstallEvent) return;
-  pendingInstallEvent.prompt();
-  const choice = await pendingInstallEvent.userChoice;
-  pendingInstallEvent = null;
-});
+if (installBtn) {
+  installBtn.addEventListener('click', async () => {
+    if (!pendingInstallEvent) return;
+    pendingInstallEvent.prompt();
+    await pendingInstallEvent.userChoice;
+    pendingInstallEvent = null;
+  });
+}
 
 // Service worker
 if ('serviceWorker' in navigator) {
@@ -436,21 +441,19 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// Start camera on user gesture
+if (startCamBtn){
+  startCamBtn.addEventListener('click', async()=>{ await startCamera(true); });
+}
+
+// Init
 (async function init(){
   restoreSettings();
-
   const perm = await checkPermission();
-  if (isInAppBrowser()) {
-    log('Terbuka di in-app browser. Buka di Chrome agar kamera bisa dipakai.');
-  }
-  if (perm === 'granted') {
-    await startCamera(true);
-  } else {
-    log('Tap tombol “Izinkan Kamera” (atas kanan) untuk memulai.');
-  }
-
+  if (isInAppBrowser()) log('Terbuka di in-app browser. Buka di Chrome agar kamera bisa dipakai.');
+  if (perm === 'granted') { await startCamera(true); } else { log('Tap tombol “Izinkan Kamera” untuk memulai.'); }
   await initFaceMesh();
   window.addEventListener('resize', resizeCanvasToRatio);
   ratioEl.addEventListener('change', resizeCanvasToRatio);
-  resolutionEl.addEventListener('change', () => { startCamera(); resizeCanvasToRatio(); });
+  resolutionEl.addEventListener('change', () => { startCamera(true); resizeCanvasToRatio(); });
 })();
