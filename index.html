@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fabaro Beauty Cam Pro - Mukemen.ai</title>
+  <title>Fabaro Beauty Cam Pro</title>
   <meta name="description" content="Aplikasi kamera filter PRO: beautify, blur background, stiker lucu, countdown, grid, watermark. Siap deploy di Vercel/GitHub Pages." />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0ea5e9" />
-  <link rel="icon" href="icon-192.png" />
+  <link rel="icon" href="favicon.ico" />
   <!-- MediaPipe (FaceMesh + Camera utils) via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
@@ -17,14 +17,15 @@
 <body>
   <header class="app-header">
     <div class="left">
+      <img src="icon-192.png" alt="logo" class="logo" />
       <h1>Fabaro Beauty Cam Pro</h1>
-      <div class="brand">by <strong>MUKEMEN.AI</strong></div>
     </div>
-    <div class="right">
+    <div class="right"><button id="startCam" class="btn primary">Izinkan Kamera</button>
       <button id="install" class="btn">Install App</button>
       <a id="download" class="btn" download="selfie.png">Download</a>
     </div>
   </header>
+<div id="debug" style="max-width:1080px;margin:8px auto;padding:8px 12px;color:#9ca3af;font-size:12px"></div>
 
   <main class="wrapper">
     <section class="stage">
@@ -121,7 +122,7 @@
   </main>
 
   <footer class="app-footer">
-    <small>© 2025 Mukemen.ai — 100% client-side. Tidak menyimpan data kamera.</small>
+    <small>© 2025 Fabaro — 100% client-side. Tidak menyimpan data kamera.</small>
   </footer>
 
   <script src="app.js"></script>
