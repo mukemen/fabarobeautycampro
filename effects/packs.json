@@ -1,0 +1,8 @@
+[
+  { "id": "none", "name": "Tanpa Efek", "apply": { "effect": "none", "blush": false, "liptint": false, "eyebright": false, "peach": false } },
+  { "id": "natural", "name": "Natural Peach", "apply": { "effect": "beauty", "blush": true, "liptint": true, "eyebright": true, "peach": true } },
+  { "id": "sweet", "name": "Sweet Pink", "apply": { "effect": "softglow", "blush": true, "liptint": true, "eyebright": false, "peach": false } },
+  { "id": "glam", "name": "Glam Night", "apply": { "effect": "vignette", "blush": true, "liptint": true, "eyebright": true, "peach": false } },
+  { "id": "bwsoft", "name": "B/W Soft", "apply": { "effect": "bw", "blush": false, "liptint": false, "eyebright": true, "peach": false } },
+  { "id": "vivid", "name": "Vivid Pop", "apply": { "effect": "vivid", "blush": false, "liptint": true, "eyebright": false, "peach": false } }
+]
