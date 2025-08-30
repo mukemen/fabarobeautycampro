@@ -4,14 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fabaro Beauty Cam Pro</title>
-  <meta name="description" content="Aplikasi kamera filter PRO: beautify, blur background, stiker lucu, countdown, grid, watermark. Siap deploy di Vercel/GitHub Pages." />
+  <meta name="description" content="Aplikasi kamera filter PRO: beautify, blur background, stiker lucu, countdown, grid, watermark. Siap deploy di Vercel." />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0ea5e9" />
   <link rel="icon" href="favicon.ico" />
-  <!-- MediaPipe (FaceMesh + Camera utils) via CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <!-- MediaPipe (FaceMesh + helpers) -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
 </head>
 <body>
@@ -20,12 +18,15 @@
       <img src="icon-192.png" alt="logo" class="logo" />
       <h1>Fabaro Beauty Cam Pro</h1>
     </div>
-    <div class="right"><button id="startCam" class="btn primary">Izinkan Kamera</button>
+    <div class="right">
+      <button id="startCam" class="btn primary">Izinkan Kamera</button>
       <button id="install" class="btn">Install App</button>
       <a id="download" class="btn" download="selfie.png">Download</a>
     </div>
   </header>
-<div id="debug" style="max-width:1080px;margin:8px auto;padding:8px 12px;color:#9ca3af;font-size:12px"></div>
+
+  <!-- panel debug kecil -->
+  <div id="debug" style="max-width:1080px;margin:8px auto;padding:8px 12px;color:#9ca3af;font-size:12px"></div>
 
   <main class="wrapper">
     <section class="stage">
