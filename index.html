@@ -5,22 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Fabaro Beauty Cam Pro</title>
   <meta name="theme-color" content="#0ea5e9" />
+  <meta name="description" content="Kamera filter PRO mobile: preset cantik, AR stiker lucu, preview lancar, hasil full-res." />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
-  <!-- MediaPipe -->
+  <!-- MediaPipe FaceMesh -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" defer></script>
 </head>
 <body>
   <header class="app-header">
     <div class="left">
-      <img src="icon-192.png" alt="logo" class="logo" />
+      <img src="icon-192.png" class="logo" alt="Fabaro" />
       <h1>Fabaro Beauty Cam Pro</h1>
     </div>
     <div class="right">
       <button id="refreshNow" class="btn">Perbarui</button>
       <button id="startCam" class="btn primary">Izinkan Kamera</button>
-      <button id="install" class="btn">Install App</button>
+      <button id="install" class="btn">Install</button>
       <a id="download" class="btn" download="selfie.png">Download</a>
     </div>
   </header>
@@ -32,33 +33,71 @@
       <video id="video" playsinline autoplay muted class="hidden"></video>
       <canvas id="output"></canvas>
       <div id="countdown" class="countdown hidden">3</div>
-      <div class="hint">Klik “Izinkan Kamera”, lalu pilih kamera depan. Ketuk area pratinjau untuk fokus (jika didukung).</div>
+      <div class="hint">Tap “Izinkan Kamera”. Ketuk pratinjau untuk fokus (bila didukung).</div>
 
-      <!-- 🔻 Tombol Ambil Foto dipindah dekat kamera -->
+      <!-- Shutter dekat kamera -->
       <div class="shutter">
         <button id="capture" class="shutter-btn" aria-label="Ambil Foto"></button>
+        <button id="proShot" class="shutter-pro" aria-label="Pro Shot (Full-Res)"></button>
+        <input id="systemCapture" type="file" accept="image/*" capture="user" style="display:none" />
       </div>
     </section>
 
-    <!-- Kontrol ringkas yang tetap dibutuhkan -->
     <section class="controls">
+      <!-- Preset dari /effects/packs.json -->
       <div class="group">
-        <h3>Kamera & Foto</h3>
+        <h3>Preset Efek</h3>
+        <div id="presetList" class="chiprow"></div>
+      </div>
+
+      <!-- Make-up ringan -->
+      <div class="group">
+        <h3>Make-up</h3>
+        <div class="row">
+          <label class="toggle"><input type="checkbox" id="fxBlush" /> Rosy Cheeks</label>
+          <label class="toggle"><input type="checkbox" id="fxLipTint" /> Lip Tint</label>
+          <label class="toggle"><input type="checkbox" id="fxEyeBright" /> Eye Brighten</label>
+          <label class="toggle"><input type="checkbox" id="fxSoftPeach" /> Soft Peach</label>
+        </div>
+        <div class="row sliders">
+          <label><span>Intensitas Beautify</span>
+            <input id="beautyLevel" type="range" min="0" max="100" value="40" />
+          </label>
+          <label><span>Blur Background</span>
+            <input id="bgBlurLevel" type="range" min="0" max="100" value="45" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Sticker packs dari /stickers/packs.json -->
+      <div class="group">
+        <h3>Stiker/AR</h3>
+        <div id="stickerPackList" class="chiprow"></div>
+        <div id="stickerList" class="row"></div>
+        <div class="row">
+          <label class="toggle"><input type="checkbox" id="customStickerToggle" /> Stiker Custom</label>
+          <input type="file" id="customStickerFile" accept="image/*" />
+          <label><span>Skala Stiker</span>
+            <input id="stickerScale" type="range" min="50" max="200" value="110" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Kamera & Output -->
+      <div class="group">
+        <h3>Kamera & Output</h3>
         <div class="row">
           <button id="flip" class="btn">Ganti Kamera</button>
           <button id="mirror" class="btn">Cermin: ON</button>
-          <label class="toggle"><input type="checkbox" id="grid" /> Grid 3×3</label>
+          <label class="toggle"><input type="checkbox" id="grid" /> Grid</label>
           <label class="toggle"><input type="checkbox" id="countdownToggle" checked /> Countdown</label>
         </div>
         <div class="row">
-          <label><span>Resolusi</span>
+          <label><span>Resolusi Preview</span>
             <select id="resolution">
               <option value="device">Device Max (Auto)</option>
               <option value="1920x1080">1920×1080</option>
-              <option value="1280x720">1280×720</option>
-              <option value="1080x1350">1080×1350</option>
-              <option value="1080x1080">1080×1080</option>
-              <option value="720x1280">720×1280</option>
+              <option value="1280x720" selected>1280×720</option>
             </select>
           </label>
           <label><span>Format</span>
@@ -70,25 +109,12 @@
         </div>
       </div>
 
+      <!-- Watermark -->
       <div class="group">
-        <h3>Mode Efek</h3>
+        <h3>Watermark</h3>
         <div class="row">
-          <button data-effect="none" class="btn active">Tanpa Efek</button>
-          <button data-effect="beauty" class="btn">Beautify</button>
-          <button data-effect="softglow" class="btn">Soft Glow</button>
-          <button data-effect="bgblur" class="btn">Blur Background</button>
-          <button data-effect="bw" class="btn">B/W</button>
-          <button data-effect="sepia" class="btn">Sepia</button>
-          <button data-effect="vivid" class="btn">Vivid</button>
-          <button data-effect="vignette" class="btn">Vignette</button>
-        </div>
-        <div class="row sliders">
-          <label><span>Intensitas Beautify</span>
-            <input id="beautyLevel" type="range" min="0" max="100" value="40" />
-          </label>
-          <label><span>Blur Background</span>
-            <input id="bgBlurLevel" type="range" min="0" max="100" value="45" />
-          </label>
+          <label class="toggle"><input type="checkbox" id="wmToggle" checked /> ON</label>
+          <input id="wmText" type="text" value="FABARO BEAUTY CAM PRO" />
         </div>
       </div>
     </section>
